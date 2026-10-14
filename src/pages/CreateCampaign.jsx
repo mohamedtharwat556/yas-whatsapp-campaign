@@ -318,11 +318,24 @@ function CreateCampaign() {
 
   const confirmStartSending = async () => {
     setShowStartConfirmDialog(false);
+
+    // Load recipients from database to ensure we have the correct data
+    const { data: dbRecipients, error: loadError } = await supabase
+      .from('recipients')
+      .select('*')
+      .eq('campaign_id', campaignId);
+
+    if (loadError || !dbRecipients || dbRecipients.length === 0) {
+      setError('خطأ في تحميل جهات الاتصال');
+      return;
+    }
+
+    setRecipients(dbRecipients);
     setIsSending(true);
     setIsPaused(false);
     setStatus('sending');
 
-    const totalBatches = Math.ceil(recipients.length / batchSize);
+    const totalBatches = Math.ceil(dbRecipients.length / batchSize);
     let processed = 0;
     let successful = 0;
     let failed = 0;
@@ -334,8 +347,8 @@ function CreateCampaign() {
       }
 
       const startIdx = batchNum * batchSize;
-      const endIdx = Math.min(startIdx + batchSize, recipients.length);
-      const batch = recipients.slice(startIdx, endIdx);
+      const endIdx = Math.min(startIdx + batchSize, dbRecipients.length);
+      const batch = dbRecipients.slice(startIdx, endIdx);
 
       setSendingProgress(prev => ({
         ...prev,
