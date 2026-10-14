@@ -10,34 +10,17 @@ DROP POLICY IF EXISTS "Public can view campaign media" ON storage.objects;
 DROP POLICY IF EXISTS "Authenticated users can delete campaign media" ON storage.objects;
 
 -- RLS Policies for campaign-media storage
--- Allow authenticated users to upload
-CREATE POLICY "Authenticated users can upload campaign media"
+-- Allow all users to upload (no auth required)
+CREATE POLICY "Allow upload campaign media"
   ON storage.objects FOR INSERT
-  WITH CHECK (
-    bucket_id = 'campaign-media' AND
-    auth.role() = 'authenticated'
-  );
+  WITH CHECK (bucket_id = 'campaign-media');
 
--- Allow authenticated users to view their uploads
-CREATE POLICY "Authenticated users can view campaign media"
+-- Allow all users to view campaign media
+CREATE POLICY "Allow view campaign media"
   ON storage.objects FOR SELECT
-  USING (
-    bucket_id = 'campaign-media' AND
-    auth.role() = 'authenticated'
-  );
+  USING (bucket_id = 'campaign-media');
 
--- Allow public read access to campaign media (for landing pages)
-CREATE POLICY "Public can view campaign media"
-  ON storage.objects FOR SELECT
-  USING (
-    bucket_id = 'campaign-media' AND
-    (storage.foldername(name))[1] = 'public'
-  );
-
--- Allow authenticated users to delete their uploads
-CREATE POLICY "Authenticated users can delete campaign media"
+-- Allow all users to delete campaign media
+CREATE POLICY "Allow delete campaign media"
   ON storage.objects FOR DELETE
-  USING (
-    bucket_id = 'campaign-media' AND
-    auth.role() = 'authenticated'
-  );
+  USING (bucket_id = 'campaign-media');
