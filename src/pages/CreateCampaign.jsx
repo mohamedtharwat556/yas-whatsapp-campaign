@@ -365,10 +365,10 @@ function CreateCampaign() {
         recipientIndex++;
         const personalizedMessage = message.replace(/\{name\}/g, recipient.name || 'العميل');
 
-        // Open WhatsApp first
+        // Open WhatsApp first using app protocol
         const encodedMessage = encodeURIComponent(personalizedMessage);
-        const whatsappUrl = `https://wa.me/${recipient.phone_number}?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
+        const whatsappUrl = `whatsapp://send?phone=${recipient.phone_number}&text=${encodedMessage}`;
+        window.location.href = whatsappUrl;
 
         setCurrentRecipient({
           ...recipient,
@@ -489,10 +489,10 @@ function CreateCampaign() {
             type="text"
             value={whatsappNumber}
             onChange={(e) => setWhatsappNumber(e.target.value)}
-            placeholder="مثال: 966500000001"
+            placeholder="مثال: 201000000000"
           />
           <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-            هذا الرقم سيظهر في صفحة العرض للعملاء للتواصل معك
+            أدخل الرقم بالصيغة المصرية (يبدأ بـ 20) بدون + أو مسافات
           </p>
         </div>
       </div>
