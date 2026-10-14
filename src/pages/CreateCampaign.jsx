@@ -23,6 +23,7 @@ function CreateCampaign() {
   });
   const [currentRecipient, setCurrentRecipient] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showStartConfirmDialog, setShowStartConfirmDialog] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -280,6 +281,14 @@ function CreateCampaign() {
     setSuccess('تم إضافة رابط صفحة العرض إلى الرسالة');
   };
 
+  const previewLandingPage = () => {
+    if (!campaignSlug) {
+      setError('يرجى حفظ الحملة أولاً لإنشاء رابط صفحة العرض');
+      return;
+    }
+    window.open(`${window.location.origin}/campaigns/${campaignSlug}`, '_blank');
+  };
+
   const sendWhatsAppMessage = async (recipient, message) => {
     // Use wa.me link to open WhatsApp with pre-filled message
     // This requires manual sending by the user
@@ -299,6 +308,16 @@ function CreateCampaign() {
       return;
     }
 
+    if (validRecipients.length === 0) {
+      setError('لا توجد جهات اتصال صالحة للإرسال');
+      return;
+    }
+
+    setShowStartConfirmDialog(true);
+  };
+
+  const confirmStartSending = async () => {
+    setShowStartConfirmDialog(false);
     setIsSending(true);
     setIsPaused(false);
     setStatus('sending');
@@ -549,7 +568,7 @@ function CreateCampaign() {
             إدراج رابط صفحة العرض
           </button>
         )}
-        <button className="btn btn-secondary" onClick={() => window.open(`${window.location.origin}/campaigns/${campaignSlug}`, '_blank')}>
+        <button className="btn btn-secondary" onClick={previewLandingPage}>
           معاينة صفحة العرض
         </button>
       </div>
@@ -565,7 +584,7 @@ function CreateCampaign() {
         <button
           className="btn btn-success"
           onClick={startSending}
-          disabled={isSending || !campaignId || status === 'completed'}
+          disabled={isSending || !campaignId || status === 'completed' || validRecipients.length === 0}
         >
           بدء الإرسال
         </button>
@@ -618,6 +637,28 @@ function CreateCampaign() {
               {Math.round((sendingProgress.processed / validRecipients.length) * 100)}%
             </div>
           </div>
+        </div>
+      )}
+
+      {showStartConfirmDialog && (
+        <div className="card" style={{ border: '3px solid var(--yas-blue)' }}>
+          <h2>تأكيد بدء الإرسال</h2>
+          <div className="alert alert-info">
+            <p><strong>إجمالي جهات الاتصال:</strong> {validRecipients.length}</p>
+            <p><strong>حجم المجموعة:</strong> {batchSize}</p>
+            <p><strong>عدد المجموعات:</strong> {requiredBatches}</p>
+            <p><strong>الرسالة:</strong></p>
+            <div className="preview-box">{message}</div>
+          </div>
+          <p style={{ marginBottom: '20px' }}>
+            سيتم فتح واتساب لكل جهة اتصال. تأكد من استعدادك للإرسال.
+          </p>
+          <button className="btn btn-success" onClick={confirmStartSending}>
+            ✓ نعم، ابدأ الإرسال
+          </button>
+          <button className="btn btn-danger" onClick={() => setShowStartConfirmDialog(false)}>
+            ✗ إلغاء
+          </button>
         </div>
       )}
 
