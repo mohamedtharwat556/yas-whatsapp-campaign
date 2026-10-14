@@ -7,8 +7,6 @@ function CreateCampaign() {
   const [message, setMessage] = useState('');
   const [previewMessage, setPreviewMessage] = useState('');
   const [manualNumbers, setManualNumbers] = useState('');
-  const [batchSize, setBatchSize] = useState(100);
-  const [whatsappNumber, setWhatsappNumber] = useState('');
   const [recipients, setRecipients] = useState([]);
   const [mediaFiles, setMediaFiles] = useState([]);
   const [campaignId, setCampaignId] = useState(null);
@@ -25,6 +23,7 @@ function CreateCampaign() {
   const [currentRecipient, setCurrentRecipient] = useState(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [showStartConfirmDialog, setShowStartConfirmDialog] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -231,11 +230,9 @@ function CreateCampaign() {
       let campaignData = {
         slug,
         message,
-        batch_size: batchSize,
         status: 'draft',
         total_recipients: recipients.length,
-        landing_page_url: landingPageUrl,
-        whatsapp_number: whatsappNumber
+        landing_page_url: landingPageUrl
       };
 
       let savedCampaignId = campaignId;
@@ -360,27 +357,12 @@ function CreateCampaign() {
     setIsPaused(false);
     setStatus('sending');
 
-    const totalBatches = Math.ceil(dbRecipients.length / batchSize);
     let processed = 0;
     let successful = 0;
     let failed = 0;
     let recipientIndex = 0;
 
-    for (let batchNum = 0; batchNum < totalBatches; batchNum++) {
-      if (isPaused) {
-        break;
-      }
-
-      const startIdx = batchNum * batchSize;
-      const endIdx = Math.min(startIdx + batchSize, dbRecipients.length);
-      const batch = dbRecipients.slice(startIdx, endIdx);
-
-      setSendingProgress(prev => ({
-        ...prev,
-        currentBatch: batchNum + 1
-      }));
-
-      for (const recipient of batch) {
+    for (const recipient of dbRecipients) {
         if (isPaused) {
           break;
         }
@@ -434,8 +416,7 @@ function CreateCampaign() {
           .update({
             processed_recipients: processed,
             successful_submissions: successful,
-            failed_submissions: failed,
-            current_batch: batchNum + 1
+            failed_submissions: failed
           })
           .eq('id', campaignId);
       }
@@ -470,7 +451,6 @@ function CreateCampaign() {
   };
 
   const validRecipients = recipients.filter(r => r.phone_number && r.phone_number.length >= 12);
-  const requiredBatches = Math.ceil(validRecipients.length / batchSize);
 
   const confirmMessageSent = async (confirmed) => {
     window.lastConfirmation = confirmed;
@@ -501,22 +481,6 @@ function CreateCampaign() {
         <div className="form-group">
           <label>معاينة الرسالة</label>
           <div className="preview-box">{previewMessage || 'ستظهر المعاينة هنا...'}</div>
-        </div>
-      </div>
-
-      <div className="card">
-        <h2>رقم واتساب للتواصل</h2>
-        <div className="form-group">
-          <label>رقم واتساب للعملاء للتواصل معك</label>
-          <input
-            type="text"
-            value={whatsappNumber}
-            onChange={(e) => setWhatsappNumber(e.target.value)}
-            placeholder="مثال: 201000000000"
-          />
-          <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
-            أدخل الرقم بالصيغة المصرية (يبدأ بـ 20) بدون + أو مسافات
-          </p>
         </div>
       </div>
 
@@ -567,26 +531,6 @@ function CreateCampaign() {
             </div>
           </div>
         )}
-      </div>
-
-      <div className="card">
-        <h2>إعدادات المجموعات</h2>
-        <div className="form-group">
-          <label>حجم المجموعة</label>
-          <input
-            type="number"
-            value={batchSize}
-            onChange={(e) => setBatchSize(parseInt(e.target.value) || 100)}
-            min="1"
-            max="1000"
-          />
-        </div>
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="label">عدد المجموعات المطلوبة</div>
-            <div className="value">{requiredBatches}</div>
-          </div>
-        </div>
       </div>
 
       <div className="card">
@@ -652,7 +596,7 @@ function CreateCampaign() {
           onClick={startSending}
           disabled={isSending || !campaignId || status === 'completed' || validRecipients.length === 0}
         >
-          بدء الإرسال
+          بدء الإرسال ({validRecipients.length})
         </button>
         {isSending && (
           <button className="btn btn-warning" onClick={pauseSending}>
@@ -711,8 +655,6 @@ function CreateCampaign() {
           <h2>تأكيد بدء الإرسال</h2>
           <div className="alert alert-info">
             <p><strong>إجمالي جهات الاتصال:</strong> {validRecipients.length}</p>
-            <p><strong>حجم المجموعة:</strong> {batchSize}</p>
-            <p><strong>عدد المجموعات:</strong> {requiredBatches}</p>
             <p><strong>الرسالة:</strong></p>
             <div className="preview-box">{message}</div>
           </div>
