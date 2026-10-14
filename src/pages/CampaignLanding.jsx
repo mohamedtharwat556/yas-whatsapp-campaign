@@ -109,8 +109,6 @@ function CampaignLanding() {
             {campaign.message}
           </p>
         </div>
-
-        </div>
       </div>
     </div>
   );

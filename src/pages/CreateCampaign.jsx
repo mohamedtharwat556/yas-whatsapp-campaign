@@ -363,63 +363,62 @@ function CreateCampaign() {
     let recipientIndex = 0;
 
     for (const recipient of dbRecipients) {
-        if (isPaused) {
-          break;
-        }
-
-        recipientIndex++;
-        const personalizedMessage = message.replace(/\{name\}/g, recipient.name || 'العميل');
-
-        // Open WhatsApp using wa.me (works on all devices)
-        const encodedMessage = encodeURIComponent(personalizedMessage);
-        const whatsappUrl = `https://wa.me/${recipient.phone_number}?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-
-        setCurrentRecipient({
-          ...recipient,
-          index: recipientIndex,
-          message: personalizedMessage
-        });
-        setShowConfirmDialog(true);
-
-        // Wait for user confirmation
-        const confirmed = await new Promise((resolve) => {
-          window.handleMessageConfirmation = resolve;
-        });
-
-        setShowConfirmDialog(false);
-
-        if (confirmed) {
-          successful++;
-          await supabase
-            .from('recipients')
-            .update({ status: 'sent' })
-            .eq('id', recipient.id);
-        } else {
-          failed++;
-          await supabase
-            .from('recipients')
-            .update({ status: 'failed', error_message: 'User cancelled' })
-            .eq('id', recipient.id);
-        }
-
-        processed++;
-        setSendingProgress(prev => ({
-          ...prev,
-          processed,
-          successful,
-          failed
-        }));
-
-        await supabase
-          .from('campaigns')
-          .update({
-            processed_recipients: processed,
-            successful_submissions: successful,
-            failed_submissions: failed
-          })
-          .eq('id', campaignId);
+      if (isPaused) {
+        break;
       }
+
+      recipientIndex++;
+      const personalizedMessage = message.replace(/\{name\}/g, recipient.name || 'العميل');
+
+      // Open WhatsApp using wa.me (works on all devices)
+      const encodedMessage = encodeURIComponent(personalizedMessage);
+      const whatsappUrl = `https://wa.me/${recipient.phone_number}?text=${encodedMessage}`;
+      window.open(whatsappUrl, '_blank');
+
+      setCurrentRecipient({
+        ...recipient,
+        index: recipientIndex,
+        message: personalizedMessage
+      });
+      setShowConfirmDialog(true);
+
+      // Wait for user confirmation
+      const confirmed = await new Promise((resolve) => {
+        window.handleMessageConfirmation = resolve;
+      });
+
+      setShowConfirmDialog(false);
+
+      if (confirmed) {
+        successful++;
+        await supabase
+          .from('recipients')
+          .update({ status: 'sent' })
+          .eq('id', recipient.id);
+      } else {
+        failed++;
+        await supabase
+          .from('recipients')
+          .update({ status: 'failed', error_message: 'User cancelled' })
+          .eq('id', recipient.id);
+      }
+
+      processed++;
+      setSendingProgress(prev => ({
+        ...prev,
+        processed,
+        successful,
+        failed
+      }));
+
+      await supabase
+        .from('campaigns')
+        .update({
+          processed_recipients: processed,
+          successful_submissions: successful,
+          failed_submissions: failed
+        })
+        .eq('id', campaignId);
     }
 
     if (!isPaused) {
