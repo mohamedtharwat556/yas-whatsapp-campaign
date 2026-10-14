@@ -21,7 +21,6 @@ function CampaignLanding() {
         .from('campaigns')
         .select('*')
         .eq('slug', slug)
-        .eq('status', 'completed')
         .single();
 
       if (campaignError) throw campaignError;
