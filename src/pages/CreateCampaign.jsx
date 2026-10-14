@@ -331,6 +331,11 @@ function CreateCampaign() {
         recipientIndex++;
         const personalizedMessage = message.replace(/\{name\}/g, recipient.name || 'العميل');
 
+        // Open WhatsApp first
+        const encodedMessage = encodeURIComponent(personalizedMessage);
+        const whatsappUrl = `https://wa.me/${recipient.phone_number}?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
+
         setCurrentRecipient({
           ...recipient,
           index: recipientIndex,
