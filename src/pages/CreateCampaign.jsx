@@ -117,6 +117,7 @@ function CreateCampaign() {
     const lines = manualNumbers.split('\n').filter(line => line.trim());
     const newRecipients = [];
     const phoneNumbers = new Set(recipients.map(r => r.phone_number));
+    const invalidNumbers = [];
 
     lines.forEach(line => {
       let cleanedPhone = line.replace(/\D/g, '');
@@ -133,13 +134,23 @@ function CreateCampaign() {
           phone_number: cleanedPhone,
           status: 'pending'
         });
+      } else {
+        invalidNumbers.push(line);
       }
     });
 
     setRecipients([...recipients, ...newRecipients]);
     setManualNumbers('');
-    setSuccess(`تم إضافة ${newRecipients.length} رقم هاتف`);
-    setError('');
+
+    if (newRecipients.length > 0) {
+      setSuccess(`تم إضافة ${newRecipients.length} رقم هاتف`);
+    }
+
+    if (invalidNumbers.length > 0) {
+      setError(`الأرقام التالية غير صالحة أو مكررة: ${invalidNumbers.join(', ')}`);
+    } else {
+      setError('');
+    }
   };
 
   const handleMediaUpload = (e) => {
@@ -544,6 +555,18 @@ function CreateCampaign() {
             <div className="value">{recipients.length - validRecipients.length}</div>
           </div>
         </div>
+        {recipients.length > 0 && (
+          <div style={{ marginTop: '20px' }}>
+            <h3 style={{ fontSize: '16px', marginBottom: '10px' }}>الأرقام المضافة:</h3>
+            <div style={{ maxHeight: '150px', overflowY: 'auto', backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
+              {recipients.map((r, i) => (
+                <div key={i} style={{ padding: '5px 0', borderBottom: '1px solid #ddd' }}>
+                  {r.phone_number} {r.name && `(${r.name})`}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="card">
