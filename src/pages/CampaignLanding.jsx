@@ -112,7 +112,7 @@ function CampaignLanding() {
 
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <a
-            href="https://wa.me/966500000000"
+            href="https://wa.me/YOUR_WHATSAPP_NUMBER"
             target="_blank"
             rel="noopener noreferrer"
             className="whatsapp-btn"
