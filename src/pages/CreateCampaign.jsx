@@ -8,6 +8,7 @@ function CreateCampaign() {
   const [previewMessage, setPreviewMessage] = useState('');
   const [manualNumbers, setManualNumbers] = useState('');
   const [batchSize, setBatchSize] = useState(100);
+  const [whatsappNumber, setWhatsappNumber] = useState('');
   const [recipients, setRecipients] = useState([]);
   const [mediaFiles, setMediaFiles] = useState([]);
   const [campaignId, setCampaignId] = useState(null);
@@ -210,7 +211,8 @@ function CreateCampaign() {
         batch_size: batchSize,
         status: 'draft',
         total_recipients: recipients.length,
-        landing_page_url: landingPageUrl
+        landing_page_url: landingPageUrl,
+        whatsapp_number: whatsappNumber
       };
 
       let savedCampaignId = campaignId;
@@ -476,6 +478,22 @@ function CreateCampaign() {
         <div className="form-group">
           <label>معاينة الرسالة</label>
           <div className="preview-box">{previewMessage || 'ستظهر المعاينة هنا...'}</div>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2>رقم واتساب للتواصل</h2>
+        <div className="form-group">
+          <label>رقم واتساب للعملاء للتواصل معك</label>
+          <input
+            type="text"
+            value={whatsappNumber}
+            onChange={(e) => setWhatsappNumber(e.target.value)}
+            placeholder="مثال: 966500000001"
+          />
+          <p style={{ fontSize: '12px', color: '#666', marginTop: '5px' }}>
+            هذا الرقم سيظهر في صفحة العرض للعملاء للتواصل معك
+          </p>
         </div>
       </div>
 
