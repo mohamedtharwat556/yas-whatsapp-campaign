@@ -339,14 +339,13 @@ function CreateCampaign() {
         setShowConfirmDialog(true);
 
         // Wait for user confirmation
-        await new Promise((resolve) => {
-          window.handleMessageConfirmation = (confirmed) => {
-            setShowConfirmDialog(false);
-            resolve(confirmed);
-          };
+        const confirmed = await new Promise((resolve) => {
+          window.handleMessageConfirmation = resolve;
         });
 
-        if (window.lastConfirmation) {
+        setShowConfirmDialog(false);
+
+        if (confirmed) {
           successful++;
           await supabase
             .from('recipients')

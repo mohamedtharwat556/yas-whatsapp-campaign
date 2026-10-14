@@ -70,26 +70,26 @@ DROP POLICY IF EXISTS "Users can manage recipients" ON recipients;
 DROP POLICY IF EXISTS "Users can manage campaign media" ON campaign_media;
 
 -- RLS Policies for campaigns
--- Allow authenticated users to manage campaigns
+-- Allow anon and authenticated users to manage campaigns
 CREATE POLICY "Users can create campaigns" ON campaigns
-  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+  FOR INSERT WITH CHECK (true);
 
 CREATE POLICY "Users can view their campaigns" ON campaigns
-  FOR SELECT USING (auth.role() = 'authenticated');
+  FOR SELECT USING (true);
 
 CREATE POLICY "Users can update their campaigns" ON campaigns
-  FOR UPDATE USING (auth.role() = 'authenticated');
+  FOR UPDATE USING (true);
 
 CREATE POLICY "Users can delete their campaigns" ON campaigns
-  FOR DELETE USING (auth.role() = 'authenticated');
+  FOR DELETE USING (true);
 
 -- RLS Policies for recipients
 CREATE POLICY "Users can manage recipients" ON recipients
-  FOR ALL USING (auth.role() = 'authenticated');
+  FOR ALL USING (true);
 
 -- RLS Policies for campaign_media
 CREATE POLICY "Users can manage campaign media" ON campaign_media
-  FOR ALL USING (auth.role() = 'authenticated');
+  FOR ALL USING (true);
 
 -- Trigger to update updated_at
 DROP TRIGGER IF EXISTS update_campaigns_updated_at ON campaigns;
