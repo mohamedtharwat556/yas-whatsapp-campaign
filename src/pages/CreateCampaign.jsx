@@ -90,8 +90,14 @@ function CreateCampaign() {
       const phone = phoneKey ? row[phoneKey] : Object.values(row)[0];
 
       if (phone) {
-        const cleanedPhone = phone.toString().replace(/\D/g, '');
-        if (cleanedPhone.length >= 10 && !phoneNumbers.has(cleanedPhone)) {
+        let cleanedPhone = phone.toString().replace(/\D/g, '');
+
+        // Format Egyptian numbers (add 20 prefix if starts with 0)
+        if (cleanedPhone.startsWith('0') && cleanedPhone.length === 11) {
+          cleanedPhone = '2' + cleanedPhone;
+        }
+
+        if (cleanedPhone.length >= 12 && !phoneNumbers.has(cleanedPhone)) {
           phoneNumbers.add(cleanedPhone);
           newRecipients.push({
             name: name || '',
@@ -113,8 +119,14 @@ function CreateCampaign() {
     const phoneNumbers = new Set(recipients.map(r => r.phone_number));
 
     lines.forEach(line => {
-      const cleanedPhone = line.replace(/\D/g, '');
-      if (cleanedPhone.length >= 10 && !phoneNumbers.has(cleanedPhone)) {
+      let cleanedPhone = line.replace(/\D/g, '');
+
+      // Format Egyptian numbers (add 20 prefix if starts with 0)
+      if (cleanedPhone.startsWith('0') && cleanedPhone.length === 11) {
+        cleanedPhone = '2' + cleanedPhone;
+      }
+
+      if (cleanedPhone.length >= 12 && !phoneNumbers.has(cleanedPhone)) {
         phoneNumbers.add(cleanedPhone);
         newRecipients.push({
           name: '',
@@ -365,10 +377,10 @@ function CreateCampaign() {
         recipientIndex++;
         const personalizedMessage = message.replace(/\{name\}/g, recipient.name || 'العميل');
 
-        // Open WhatsApp first using app protocol
+        // Open WhatsApp using wa.me (works on all devices)
         const encodedMessage = encodeURIComponent(personalizedMessage);
-        const whatsappUrl = `whatsapp://send?phone=${recipient.phone_number}&text=${encodedMessage}`;
-        window.location.href = whatsappUrl;
+        const whatsappUrl = `https://wa.me/${recipient.phone_number}?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
 
         setCurrentRecipient({
           ...recipient,
@@ -446,7 +458,7 @@ function CreateCampaign() {
     startSending();
   };
 
-  const validRecipients = recipients.filter(r => r.phone_number && r.phone_number.length >= 10);
+  const validRecipients = recipients.filter(r => r.phone_number && r.phone_number.length >= 12);
   const requiredBatches = Math.ceil(validRecipients.length / batchSize);
 
   const confirmMessageSent = async (confirmed) => {

@@ -113,7 +113,9 @@ function CampaignLanding() {
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           {campaign.whatsapp_number ? (
             <a
-              href={`whatsapp://send?phone=${campaign.whatsapp_number}`}
+              href={`https://wa.me/${campaign.whatsapp_number}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="whatsapp-btn"
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
