@@ -385,8 +385,10 @@ function CreateCampaign() {
       // Wait for user confirmation
       const confirmed = await new Promise((resolve) => {
         window.handleMessageConfirmation = resolve;
+        console.log('Waiting for confirmation for recipient:', recipient.phone_number);
       });
 
+      console.log('Confirmation received:', confirmed);
       setShowConfirmDialog(false);
 
       if (confirmed) {
@@ -670,18 +672,24 @@ function CreateCampaign() {
       )}
 
       {showConfirmDialog && currentRecipient && (
-        <div className="card" style={{ border: '3px solid var(--yas-blue)' }}>
+        <div className="card" style={{ border: '3px solid var(--yas-blue)', backgroundColor: '#fffbe6' }}>
           <h2>تأكيد إرسال الرسالة</h2>
           <div className="alert alert-info">
             <p><strong>المستلم:</strong> {currentRecipient.name || 'غير محدد'} ({currentRecipient.phone_number})</p>
             <p><strong>الرسالة:</strong></p>
             <div className="preview-box">{currentRecipient.message}</div>
           </div>
-          <p style={{ marginBottom: '20px' }}>
-            تم فتح واتساب في نافذة جديدة. يرجى إرسال الرسالة ثم العودة لتأكيد الإرسال.
-          </p>
-          <button className="btn btn-success" onClick={() => confirmMessageSent(true)}>
-            ✓ تم الإرسال
+          <div className="alert alert-warning" style={{ marginBottom: '20px' }}>
+            <strong>⚠️ هام:</strong> تم فتح واتساب في نافذة جديدة.
+            <br />
+            1. أرسل الرسالة في واتساب
+            <br />
+            2. عُد لهذه الصفحة
+            <br />
+            3. اضغط "تم الإرسال" للمتابعة للرقم التالي
+          </div>
+          <button className="btn btn-success" onClick={() => confirmMessageSent(true)} style={{ fontSize: '18px', padding: '15px 30px' }}>
+            ✓ تم الإرسال - متابعة للرقم التالي
           </button>
           <button className="btn btn-danger" onClick={() => confirmMessageSent(false)}>
             ✗ لم يتم الإرسال
